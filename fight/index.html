@@ -9,7 +9,14 @@
   <title>fight</title>
 </head>
 <body class="bg-gray-300">
-  <canvas id="fight-canvas" class="border mx-auto mt-4"></canvas>
-  <script type="module" src="/fight/fight.js"></script>
+  <div class="relative w-min mx-auto">
+    <div id="hud" class="w-full flex items-center absolute p-2 px-4 top-0 h-24">
+      <div id="health-bar-player" class="w-full bg-yellow-500 grow h-4/6"></div>
+      <div id="timer" class="w-full bg-red-500 w-48 h-full"></div>
+      <div id="health-bar-enemy" class="w-full bg-yellow-500 grow h-4/6"></div>
+    </div>
+    <canvas id="fight-canvas" class="border-2 border-green-500 mt-4"></canvas>
+    <script type="module" src="/fight/fight.js"></script>
+  </div>
 </body>
 </html>

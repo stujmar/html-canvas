@@ -11,7 +11,10 @@ export class Keys {
     };
     this.s = {
       pressed: false
-    }
+    };
+    this.space = {
+      pressed: false
+    };
     this.ArrowLeft = {
       pressed: false
     };
@@ -22,6 +25,9 @@ export class Keys {
       pressed: false
     };
     this.ArrowDown = {
+      pressed: false
+    }
+    this.zero = {
       pressed: false
     }
   }

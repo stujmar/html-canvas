@@ -7,15 +7,39 @@ export class Sprite {
     this.height = 150;
     this.width = 50;
     this.position = position;
-    this.attackBox = {
+    this.punchBox = {
       position: this.position,
       width: 100,
-      height: 50
+      height: 50,
+      offSetX: 0,
+      offSetY: 0,
     }
+    this.isPunching = false;
+    this.isKicking = false;
     this.velocity = velocity;
     this.lastKey;
     this.isDucked = false;
     this.facing = facing;
+  }
+
+  punch() {
+    this.isPunching = true;
+    setTimeout(() => {
+      this.isPunching = false;
+    }, 100);
+  }
+
+  kick() {
+    this.isKicking = true;
+  }
+
+  hit(direction) {
+    let knockBack = direction === "right" ? 18 : -18;
+    this.velocity.y = -3;
+    this.velocity.x = knockBack;
+    setTimeout(() => {
+      this.velocity.x = 0;
+    }, 500);
   }
 
   duck() {
@@ -29,10 +53,13 @@ export class Sprite {
   }}
 
   draw() {
+    let attackDirection = this.facing === "right" ? this.punchBox.position.x : this.punchBox.position.x - this.width;
+    if (this.isPunching) {
+      this.c.fillStyle = "yellowgreen";
+      this.c.fillRect(attackDirection, this.punchBox.position.y, this.punchBox.width, this.punchBox.height);
+    }
     this.c.fillStyle = this.color;
     this.c.fillRect(this.position.x, this.position.y, this.width, this.height);
-    let attackDirection = this.facing === "right" ? this.attackBox.position.x : this.attackBox.position.x - this.width;
-    this.c.fillRect(attackDirection, this.attackBox.position.y, this.attackBox.width, this.attackBox.height);
   }
 
   update() {
