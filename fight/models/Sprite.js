@@ -13,10 +13,12 @@ export class Sprite {
       height: 50,
       offSetX: 0,
       offSetY: 0,
+      knockBack: 30,
     }
     this.isPunching = false;
     this.isKicking = false;
     this.velocity = velocity;
+    this.health = 100;
     this.lastKey;
     this.isDucked = false;
     this.facing = facing;
@@ -34,7 +36,8 @@ export class Sprite {
   }
 
   hit(direction) {
-    let knockBack = direction === "right" ? 18 : -18;
+    this.health -= 5;
+    let knockBack = direction === "right" ? this.punchBox.knockBack : -this.punchBox.knockBack;
     this.velocity.y = -3;
     this.velocity.x = knockBack;
     setTimeout(() => {
@@ -62,16 +65,18 @@ export class Sprite {
     this.c.fillRect(this.position.x, this.position.y, this.width, this.height);
   }
 
-  update() {
+  update(canFall) {
     this.draw()
+    // walking
+    this.position.x += this.velocity.x;
+    this.position.x += this.velocity.x;
+    
     this.velocity.y += this.gravity;
-    this.position.x += this.velocity.x;
-    this.position.x += this.velocity.x;
-      if (this.position.y + this.height + this.velocity.y <= this.ground) { // If the sprite above the ground fall.
-        this.position.y += this.velocity.y;
-      } else { // If the sprite is near the ground, snap to ground.
-        this.position.y = this.ground - this.height;
-      }
+    if (this.position.y + this.height + this.velocity.y <= this.ground && canFall) { // If the sprite above the ground fall.
+      this.position.y += this.velocity.y;
+    } else if (canFall) { // If the sprite is near the ground, snap to ground.
+      this.position.y = this.ground - this.height;
+    }
   }
 
 }

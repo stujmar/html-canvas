@@ -11,9 +11,17 @@
 <body class="bg-gray-300">
   <div class="relative w-min mx-auto">
     <div id="hud" class="w-full flex items-center absolute p-2 px-4 top-0 h-24">
-      <div id="health-bar-player" class="w-full bg-yellow-500 grow h-4/6"></div>
+      <div class="w-full bg-yellow-500 grow h-4/6 p-2">
+        <div id="health-bar-player" class="bg-green-600 w-full h-full ml-auto relative">
+          <div id="red-bar-player" class="bg-red-500 absolute inset-0"></div>
+        </div>
+      </div>
       <div id="timer" class="w-full bg-red-500 w-48 h-full"></div>
-      <div id="health-bar-enemy" class="w-full bg-yellow-500 grow h-4/6"></div>
+      <div class="w-full bg-yellow-500 grow h-4/6 p-2">
+        <div id="health-bar-enemy" class="bg-green-600 w-full h-full mr-auto relative">
+          <div id="red-bar-enemy" class="bg-red-500 absolute inset-0"></div>
+        </div>
+      </div>
     </div>
     <canvas id="fight-canvas" class="border-2 border-green-500 mt-4"></canvas>
     <script type="module" src="/fight/fight.js"></script>
