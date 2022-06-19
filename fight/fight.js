@@ -22,20 +22,22 @@ const jumpHeight = 15;
 
   const player = new Sprite({ 
     context: c,
+    dimensions: {width: 50, height: 150},
     facing: "right",
     ground: ground,
     gravity: gravity,
-    "color": "blue" ,
+    color: "blue" ,
     position: {x: 200, y: 50}, 
     velocity: {x: 0, y: 0},
   });
 
   const enemy = new Sprite({
     context: c,
+    dimensions: {width: 50, height: 150},
     facing: "left",
     ground: ground,
     gravity: gravity, 
-    "color": "red" ,
+    color: "red" ,
     position: {x: canvas.width-250, y: -10}, 
     velocity: {x: 0, y: 0},
   });
@@ -57,36 +59,30 @@ const jumpHeight = 15;
   const bouncingJump = (event) => (["w", "ArrowUp"].includes(event.key) && event.repeat);
   const keyIsHeld = (event) => event.repeat;
   const isAtLeftEdge = (sprite) => sprite.position.x <= 0;
-  const isAtRightEdge = (sprite) => sprite.position.x >= canvas.width - sprite.width;
+  const isAtRightEdge = (sprite) => sprite.position.x + sprite.width >= canvas.width;
   const isAtGround = (sprite) => sprite.position.y + sprite.height === ground;
-
+  const canSnapToOpponent = (walker, blocker, direction) => {
+    if (direction === "right") {
+      return (walker.position.x + walker.width + walkSpeed >= blocker.position.x && walker.position.x + walker.width < blocker.position.x + walkSpeed*2);
+    } else if (direction === "left") {
+      return (walker.position.x - walkSpeed <= blocker.position.x + blocker.width && walker.position.x >= blocker.position.x + blocker.width - walkSpeed*2);
+    }
+  }
   const isClearVirtically = (spriteOne, spriteTwo) => {
     return spriteOne.position.y + spriteOne.height <= spriteTwo.position.y ||
     spriteOne.position.y >= spriteTwo.position.y + spriteTwo.height;
   }
-  const canMoveRight = (movingSprite, blockingSprite) => {
-    return (movingSprite.position.x + movingSprite.width + walkSpeed < blockingSprite.position.x - 2 ||
-    movingSprite.position.x > blockingSprite.position.x + blockingSprite.width/2 || 
-    isClearVirtically(movingSprite, blockingSprite));
-  };
 
-  const canMoveLeft = (movingSprite, blockingSprite) => {
-    return (movingSprite.position.x - walkSpeed > blockingSprite.position.x + blockingSprite.width + 2 ||
-    movingSprite.position.x < blockingSprite.position.x + blockingSprite.width/2 || 
-    isClearVirtically(movingSprite, blockingSprite));
-  };
-  
-  // This works but really shouldn't, it should be using sprite's height aginst hitBox height/elevation. 
+  // This works but really shouldn't? should be using sprite's height aginst hitBox height/elevation?
   const punchBoxesShareElevation = (hit, hitter) => {
     return ((hit.punchBox.position.y > hitter.punchBox.position.y && // Top edge of box falls within second box
            hit.punchBox.position.y < hitter.punchBox.position.y + hitter.punchBox.height) ||
            (hit.punchBox.position.y + hit.punchBox.height >= hitter.punchBox.position.y && // Bottom edge of box falls within second box
             hit.punchBox.position.y + hit.punchBox.height <= hitter.punchBox.position.y + hitter.punchBox.height));
   }
-
   const canFall = (faller, blocker) => {
-    return isClearVirtically(player, enemy) || (faller.position.x + faller.width < blocker.position.x ||
-    faller.position.x > blocker.position.x + blocker.width);
+    return isClearVirtically(faller, blocker) || (faller.position.x + faller.width <= blocker.position.x ||
+    faller.position.x >= blocker.position.x + blocker.width);
   }
 
   // Event Loop
@@ -108,32 +104,35 @@ const jumpHeight = 15;
     enemy.velocity.x = 0;
 
     // Player Movement
-    if (keys.a.pressed && player.lastKey === "a" && (!isAtLeftEdge(player) && canMoveLeft(player, enemy) || !canFall(player, enemy)) ) {
+    if (keys.a.pressed && player.lastKey === "a" && !isAtLeftEdge(player)) {
       player.facing = "left";
-      player.velocity.x = -walkSpeed;
-    } else if (keys.d.pressed && player.lastKey === "d" && (!isAtRightEdge(player) && canMoveRight(player, enemy) || !canFall(player, enemy))) {
+      canSnapToOpponent(player, enemy, "left") && !isClearVirtically(player, enemy) ? player.position.x = enemy.position.x + enemy.width : player.velocity.x -= walkSpeed;
+    } else if (keys.d.pressed && player.lastKey === "d" && !isAtRightEdge(player)) {
       player.facing = "right";
-      player.velocity.x = walkSpeed;
+      canSnapToOpponent(player, enemy, "right") && !isClearVirtically(player, enemy) ? player.position.x = enemy.position.x - player.width : player.velocity.x = walkSpeed;
     }
     if (!keys.a.pressed && !keys.d.pressed) {
       player.velocity.x = 0;
     }
     // Enemy Movement
-    if (keys.ArrowLeft.pressed && enemy.lastKey === "ArrowLeft" && (!isAtLeftEdge(enemy) && canMoveLeft(enemy, player) || !canFall(enemy, player))) {
+    if (keys.ArrowLeft.pressed && enemy.lastKey === "ArrowLeft" && !isAtLeftEdge(enemy)) {
       enemy.facing = "left";
-      enemy.velocity.x = -walkSpeed;
-    } else if (keys.ArrowRight.pressed && enemy.lastKey === "ArrowRight" && (!isAtRightEdge(enemy) && canMoveRight(enemy, player)|| !canFall(enemy, player))) {
+      canSnapToOpponent(enemy, player, "left") && !isClearVirtically(player, enemy) ? enemy.position.x = player.position.x + player.width : enemy.velocity.x -= walkSpeed;
+    } else if (keys.ArrowRight.pressed && enemy.lastKey === "ArrowRight" && !isAtRightEdge(enemy)) {
       enemy.facing = "right";
-      enemy.velocity.x = walkSpeed;
+      canSnapToOpponent(enemy, player, "right") && !isClearVirtically(player, enemy) ? enemy.position.x = player.position.x - enemy.width : enemy.velocity.x = walkSpeed;
     }
-    if (!keys.ArrowLeft.pressed && !keys.ArrowRight.pressed) {
-      enemy.velocity.x = 0;
+    if (!keys.a.pressed && !keys.d.pressed) {
+      player.velocity.x = 0;
     }
 
     // Player Jump
-    if (keys.w.pressed && isAtGround(player)) {
+    // console.log("jump", player.velocity.y === 8, isClearVirtically(player, enemy))
+    if (keys.w.pressed && (isAtGround(player) || (player.velocity.y === 0))) {
       keys.w.pressed = false;
+      console.log('jump', player.velocity.y)
       player.velocity.y = -jumpHeight;
+      console.log('jump', player.velocity.y)
     }
     // Enemy Jump
     if (keys.ArrowUp.pressed && isAtGround(enemy)) {

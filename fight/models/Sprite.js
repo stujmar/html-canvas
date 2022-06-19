@@ -1,11 +1,11 @@
 export class Sprite {
-  constructor({position, color, context, facing, gravity, ground, velocity}) {
+  constructor({position, color, context, dimensions, facing, gravity, ground, velocity}) {
     this.c = context;
     this.color = color;
     this.gravity = gravity
     this.ground = ground;
-    this.height = 150;
-    this.width = 50;
+    this.height = dimensions.height;
+    this.width = dimensions.width;
     this.position = position;
     this.punchBox = {
       position: this.position,
@@ -47,11 +47,11 @@ export class Sprite {
 
   duck() {
     if (!this.isDucked) {
-      this.height = 100;
+      this.height -= 50;
       this.position.y += 50;
       this.isDucked = true;
     } else {
-      this.height = 150;
+      this.height += 50;
       this.position.y -= 50;
   }}
 
@@ -70,12 +70,24 @@ export class Sprite {
     // walking
     this.position.x += this.velocity.x;
     this.position.x += this.velocity.x;
-    
-    this.velocity.y += this.gravity;
+
+    // if (this.position.y + this.height < this.ground) {
+    //   this.velocity.y += this.gravity;
+    //   console.log("test")
+    //   this.position.y += this.velocity.y;
+    // } else {
+    //   console.log("hit", this.velocity, this.position)
+    //   this.velocity.y = 0;
+    // }
+
     if (this.position.y + this.height + this.velocity.y <= this.ground && canFall) { // If the sprite above the ground fall.
+      this.velocity.y += this.gravity;
       this.position.y += this.velocity.y;
     } else if (canFall) { // If the sprite is near the ground, snap to ground.
       this.position.y = this.ground - this.height;
+      this.velocity.y = 0;
+    } else { // land on opponent?
+      // this.velocity.y = 0;
     }
   }
 
