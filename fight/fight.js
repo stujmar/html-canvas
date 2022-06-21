@@ -9,6 +9,9 @@ const playerHealthBar = document.querySelector("#health-bar-player");
 const enemyHealthBar = document.querySelector("#health-bar-enemy");
 const playerRedBar = document.querySelector("#red-bar-player");
 const enemyRedBar = document.querySelector("#red-bar-enemy");
+const timer = document.querySelector("#timer");
+const resultsBanner = document.querySelector("#results-banner");
+const matchResults = document.querySelector("#match-results");
 playerRedBar.style.opacity = "0";
 enemyRedBar.style.opacity = "0";
 
@@ -19,6 +22,11 @@ const ground = 500;
 const gravity = 0.5;
 const walkSpeed = 5;
 const jumpHeight = 15;
+
+let preGame = true;
+let gameOver = false;
+let time = 60;
+timer.innerHTML = time;
 
   const player = new Sprite({ 
     context: c,
@@ -56,6 +64,28 @@ const jumpHeight = 15;
   const keys = new Keys();
 
   // Helper Functions
+  const resetGame = () => {
+    gameOver = false;
+    player.health = 100;
+    enemy.health = 100;
+    player.position.x = 200;
+    enemy.position.x = canvas.width-250;
+    player.position.y = 0;
+    enemy.position.y = 0;
+    player.velocity.x = 0;
+    enemy.velocity.x = 0;
+    player.velocity.y = 0;
+    enemy.velocity.y = 0;
+    player.facing = "right";
+    enemy.facing = "left";
+    playerRedBar.style.opacity = "0";
+    enemyRedBar.style.opacity = "0";
+    playerHealthBar.style.width = "100%";
+    enemyHealthBar.style.width = "100%";
+    resultsBanner.style.display = "none";
+    time = 60;
+    // timer.style.display = "none"
+  }
   const bouncingJump = (event) => (["w", "ArrowUp"].includes(event.key) && event.repeat);
   const keyIsHeld = (event) => event.repeat;
   const isAtLeftEdge = (sprite) => sprite.position.x <= 0;
@@ -85,15 +115,38 @@ const jumpHeight = 15;
     faller.position.x >= blocker.position.x + blocker.width);
   }
 
+  const calculateResults = () => {
+    if (player.health === enemy.health) {
+      resultsBanner.style.display = "flex";
+      matchResults.innerHTML = "Tie Game!";
+    } else if (player.health > enemy.health) {
+      resultsBanner.style.display = "flex";
+      matchResults.innerHTML = "Blue Wins!";
+    } else {
+      resultsBanner.style.display = "flex";
+      matchResults.innerHTML = "Red Wins!";
+    }
+
+    timer.innerHTML = "XX"
+  }
+
+  // Time
+  function decreaseTimer() {
+    if (!gameOver) {
+    setTimeout(decreaseTimer, 1000);
+    time = time > 0 ? time - 1 : 0;
+    timer.innerHTML = time;
+    if (time === 0) {
+      gameOver = true;
+      gameOver && calculateResults();
+    }
+    }
+  }
+
   // Event Loop
   function animate() {
-    if (player.health <= 0) {
-      alert("Red Wins!");
-      return;
-    }
-    if (enemy.health <= 0) {
-      alert("Blue Wins!");
-      return;
+    if (player.health === 0 || enemy.health === 0) {
+      calculateResults();
     }
 
     background() // Draw the background.
@@ -127,7 +180,6 @@ const jumpHeight = 15;
     }
 
     // Player Jump
-    // console.log("jump", player.velocity.y === 8, isClearVirtically(player, enemy))
     if (keys.w.pressed && (isAtGround(player) || (player.velocity.y === 0))) {
       keys.w.pressed = false;
       console.log('jump', player.velocity.y)
@@ -196,9 +248,20 @@ const jumpHeight = 15;
 
     window.requestAnimationFrame(animate);
   }
-  animate();
+  if (!gameOver) {
+    animate();
+  }
 
   // Event Listeners
+  document.getElementById("start").addEventListener("click", () => {
+    document.getElementById("pre-game").style.display = "none";
+    preGame = false;
+    decreaseTimer();
+  });
+  document.getElementById("reset").addEventListener("click", () => {
+    resetGame();
+  });
+
   window.addEventListener("keydown", (e) => {
     // console.log(e.key);
     if (e.key === "0" && !keyIsHeld(e)) {
