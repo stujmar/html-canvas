@@ -1,5 +1,6 @@
-import {Keys} from "./models/Keys.js";
-import {Sprite} from "./models/Sprite.js";
+import { Keys } from "./models/Keys.js";
+import { Fighter } from "./models/Fighter.js";
+import { Sprite } from "./models/Sprite.js";
 
 console.log("fight.js loaded");
 
@@ -27,8 +28,18 @@ let preGame = true;
 let gameOver = false;
 let time = 60;
 timer.innerHTML = time;
+let backgroundImg = "./assets/background.png";
 
-  const player = new Sprite({ 
+const Background = new Sprite(
+  {
+    context: c,
+    position: {x: 0, y: 0},
+    dimensions: {width: canvas.width, height: canvas.height},
+    imgSource: backgroundImg,
+  },
+)
+
+  const player = new Fighter({ 
     context: c,
     dimensions: {width: 50, height: 150},
     facing: "right",
@@ -39,7 +50,7 @@ timer.innerHTML = time;
     velocity: {x: 0, y: 0},
   });
 
-  const enemy = new Sprite({
+  const enemy = new Fighter({
     context: c,
     dimensions: {width: 50, height: 150},
     facing: "left",
@@ -50,21 +61,11 @@ timer.innerHTML = time;
     velocity: {x: 0, y: 0},
   });
 
-  function background() {
-    c.fillStyle = "black";
-    c.fillRect(0,0,canvas.width,canvas.height);
-    c.strokeStyle = "green";
-    c.lineWidth = 5;
-    c.beginPath();
-    c.moveTo(0, ground);
-    c.lineTo(canvas.width, ground);
-    c.stroke();
-  }
-
   const keys = new Keys();
 
   // Helper Functions
   const resetGame = () => {
+    preGame = true;
     gameOver = false;
     player.health = 100;
     enemy.health = 100;
@@ -148,35 +149,41 @@ timer.innerHTML = time;
     if (player.health === 0 || enemy.health === 0) {
       calculateResults();
     }
+    Background.draw(c);
+    // if (backgroundImg.onload()) {
+    //   Background.update()
+    // }
 
-    background() // Draw the background.
+    // background() // Draw the background.
     player.update(canFall(player, enemy)); // Update the player.
     enemy.update(canFall(enemy, player)); // Update the enemy.
     // Reset the player's velocity.
     player.velocity.x = 0; 
     enemy.velocity.x = 0;
 
-    // Player Movement
-    if (keys.a.pressed && player.lastKey === "a" && !isAtLeftEdge(player)) {
-      player.facing = "left";
-      canSnapToOpponent(player, enemy, "left") && !isClearVirtically(player, enemy) ? player.position.x = enemy.position.x + enemy.width : player.velocity.x -= walkSpeed;
-    } else if (keys.d.pressed && player.lastKey === "d" && !isAtRightEdge(player)) {
-      player.facing = "right";
-      canSnapToOpponent(player, enemy, "right") && !isClearVirtically(player, enemy) ? player.position.x = enemy.position.x - player.width : player.velocity.x = walkSpeed;
-    }
-    if (!keys.a.pressed && !keys.d.pressed) {
-      player.velocity.x = 0;
-    }
-    // Enemy Movement
-    if (keys.ArrowLeft.pressed && enemy.lastKey === "ArrowLeft" && !isAtLeftEdge(enemy)) {
-      enemy.facing = "left";
-      canSnapToOpponent(enemy, player, "left") && !isClearVirtically(player, enemy) ? enemy.position.x = player.position.x + player.width : enemy.velocity.x -= walkSpeed;
-    } else if (keys.ArrowRight.pressed && enemy.lastKey === "ArrowRight" && !isAtRightEdge(enemy)) {
-      enemy.facing = "right";
-      canSnapToOpponent(enemy, player, "right") && !isClearVirtically(player, enemy) ? enemy.position.x = player.position.x - enemy.width : enemy.velocity.x = walkSpeed;
-    }
-    if (!keys.a.pressed && !keys.d.pressed) {
-      player.velocity.x = 0;
+    if (!preGame) {
+      // Player Movement
+      if (keys.a.pressed && player.lastKey === "a" && !isAtLeftEdge(player)) {
+        player.facing = "left";
+        canSnapToOpponent(player, enemy, "left") && !isClearVirtically(player, enemy) ? player.position.x = enemy.position.x + enemy.width : player.velocity.x -= walkSpeed;
+      } else if (keys.d.pressed && player.lastKey === "d" && !isAtRightEdge(player)) {
+        player.facing = "right";
+        canSnapToOpponent(player, enemy, "right") && !isClearVirtically(player, enemy) ? player.position.x = enemy.position.x - player.width : player.velocity.x = walkSpeed;
+      }
+      if (!keys.a.pressed && !keys.d.pressed) {
+        player.velocity.x = 0;
+      }
+      // Enemy Movement
+      if (keys.ArrowLeft.pressed && enemy.lastKey === "ArrowLeft" && !isAtLeftEdge(enemy)) {
+        enemy.facing = "left";
+        canSnapToOpponent(enemy, player, "left") && !isClearVirtically(player, enemy) ? enemy.position.x = player.position.x + player.width : enemy.velocity.x -= walkSpeed;
+      } else if (keys.ArrowRight.pressed && enemy.lastKey === "ArrowRight" && !isAtRightEdge(enemy)) {
+        enemy.facing = "right";
+        canSnapToOpponent(enemy, player, "right") && !isClearVirtically(player, enemy) ? enemy.position.x = player.position.x - enemy.width : enemy.velocity.x = walkSpeed;
+      }
+      if (!keys.a.pressed && !keys.d.pressed) {
+        player.velocity.x = 0;
+      }
     }
 
     // Player Jump
