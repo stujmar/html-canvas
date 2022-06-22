@@ -133,7 +133,7 @@ const Background = new Sprite(
 
   // Time
   function decreaseTimer() {
-    if (!gameOver) {
+    if (!gameOver && !preGame) {
     setTimeout(decreaseTimer, 1000);
     time = time > 0 ? time - 1 : 0;
     timer.innerHTML = time;
@@ -149,6 +149,11 @@ const Background = new Sprite(
     if (player.health === 0 || enemy.health === 0) {
       calculateResults();
     }
+
+    if ( preGame ) {
+      document.getElementById("pre-game").style.display = "flex";
+    }
+
     Background.draw(c);
     // if (backgroundImg.onload()) {
     //   Background.update()
@@ -255,9 +260,9 @@ const Background = new Sprite(
 
     window.requestAnimationFrame(animate);
   }
-  if (!gameOver) {
-    animate();
-  }
+
+  animate();
+
 
   // Event Listeners
   document.getElementById("start").addEventListener("click", () => {
