@@ -22,6 +22,7 @@ export class Fighter {
     this.lastKey;
     this.isDucked = false;
     this.facing = facing;
+    this.isStacked = false;
   }
 
   punch() {
@@ -65,30 +66,28 @@ export class Fighter {
     this.c.fillRect(this.position.x, this.position.y, this.width, this.height);
   }
 
-  update(canFall) {
+  jump() {
+    // jump height could be stored on instance
+   this.position.y -= 2;
+    this.velocity.y = -15;
+  }
+
+  update(canFall, isStacked) {
     this.draw()
+    this.isStacked = isStacked;
     // walking
     this.position.x += this.velocity.x;
     this.position.x += this.velocity.x;
 
-    // if (this.position.y + this.height < this.ground) {
-    //   this.velocity.y += this.gravity;
-    //   console.log("test")
-    //   this.position.y += this.velocity.y;
-    // } else {
-    //   console.log("hit", this.velocity, this.position)
-    //   this.velocity.y = 0;
-    // }
-
+    
     if (this.position.y + this.height + this.velocity.y <= this.ground && canFall) { // If the sprite above the ground fall.
       this.velocity.y += this.gravity;
       this.position.y += this.velocity.y;
     } else if (canFall) { // If the sprite is near the ground, snap to ground.
       this.position.y = this.ground - this.height;
       this.velocity.y = 0;
-    } else { // land on opponent?
-      // this.velocity.y = 0;
     }
+    // this.position.y += this.velocity.y;
   }
 
 }

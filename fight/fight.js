@@ -99,6 +99,26 @@ const Background = new Sprite(
       return (walker.position.x - walkSpeed <= blocker.position.x + blocker.width && walker.position.x >= blocker.position.x + blocker.width - walkSpeed*2);
     }
   }
+
+  // Are the characters stacked?
+  const isStacked = (top, bottom) => {
+    let verticalAlignment = Math.abs((top.position.y + top.height) - bottom.position.y) < 1;
+    let leftEdge = top.position.x > bottom.position.x && top.position.x < bottom.position.x + bottom.width;
+    let rightEdge = top.position.x + top.width > bottom.position.x && top.position.x + top.width < bottom.position.x + bottom.width;
+    let xAlignment = top.width === bottom.width && top.position.x === bottom.position.x;
+    return verticalAlignment && (leftEdge || rightEdge || xAlignment);
+  }
+
+  // if a faller is going to land on a blocker snap the faller to the blocker
+  const stackSnap = (faller, blocker) => {
+    let leftEdge = faller.position.x > blocker.position.x && faller.position.x < blocker.position.x + blocker.width;
+    let rightEdge = faller.position.x + faller.width > blocker.position.x && faller.position.x + faller.width < blocker.position.x + blocker.width;
+    if (Math.abs(faller.position.y + faller.height - blocker.position.y) < 5 && (leftEdge || rightEdge)) {
+      faller.position.y = blocker.position.y - faller.height;
+      faller.velocity.y = 0;
+    }
+  }
+
   const isClearVirtically = (spriteOne, spriteTwo) => {
     return spriteOne.position.y + spriteOne.height <= spriteTwo.position.y ||
     spriteOne.position.y >= spriteTwo.position.y + spriteTwo.height;
@@ -146,6 +166,7 @@ const Background = new Sprite(
 
   // Event Loop
   function animate() {
+
     if (player.health === 0 || enemy.health === 0) {
       calculateResults();
     }
@@ -155,13 +176,9 @@ const Background = new Sprite(
     }
 
     Background.draw(c);
-    // if (backgroundImg.onload()) {
-    //   Background.update()
-    // }
 
-    // background() // Draw the background.
-    player.update(canFall(player, enemy)); // Update the player.
-    enemy.update(canFall(enemy, player)); // Update the enemy.
+    player.update(canFall(player, enemy), isStacked(player, enemy)); // Update the player.
+    enemy.update(canFall(enemy, player), isStacked(enemy, player)); // Update the enemy.
     // Reset the player's velocity.
     player.velocity.x = 0; 
     enemy.velocity.x = 0;
@@ -192,16 +209,20 @@ const Background = new Sprite(
     }
 
     // Player Jump
-    if (keys.w.pressed && (isAtGround(player) || (player.velocity.y === 0))) {
+    stackSnap(player, enemy);
+    if (keys.w.pressed && (isAtGround(player) || player.velocity.y === 0 || isStacked(player, enemy))) {
       keys.w.pressed = false;
       console.log('jump', player.velocity.y)
-      player.velocity.y = -jumpHeight;
+      player.jump();
+      // player.velocity.y = -jumpHeight;
       console.log('jump', player.velocity.y)
     }
+    stackSnap(enemy, player);
     // Enemy Jump
-    if (keys.ArrowUp.pressed && isAtGround(enemy)) {
+    if (keys.ArrowUp.pressed && (isAtGround(enemy) || player.velocity.y === 0 || isStacked(player, enemy))) {
       keys.ArrowUp.pressed = false;
-      enemy.velocity.y = -jumpHeight;
+      enemy.jump();
+      // enemy.velocity.y = -jumpHeight;
     }
 
     // Player Duck
