@@ -85,6 +85,7 @@ const Background = new Sprite(
     enemyHealthBar.style.width = "100%";
     resultsBanner.style.display = "none";
     time = 60;
+    timer.innerHTML = time;
     // timer.style.display = "none"
   }
   const bouncingJump = (event) => (["w", "ArrowUp"].includes(event.key) && event.repeat);
@@ -111,9 +112,11 @@ const Background = new Sprite(
 
   // if a faller is going to land on a blocker snap the faller to the blocker
   const stackSnap = (faller, blocker) => {
+    let snapTolerance = 10;
     let leftEdge = faller.position.x > blocker.position.x && faller.position.x < blocker.position.x + blocker.width;
     let rightEdge = faller.position.x + faller.width > blocker.position.x && faller.position.x + faller.width < blocker.position.x + blocker.width;
-    if (Math.abs(faller.position.y + faller.height - blocker.position.y) < 5 && (leftEdge || rightEdge)) {
+    if (Math.abs(faller.position.y + faller.height - blocker.position.y) < snapTolerance && (leftEdge || rightEdge)) {
+      console.log("snapped");
       faller.position.y = blocker.position.y - faller.height;
       faller.velocity.y = 0;
     }
@@ -210,7 +213,7 @@ const Background = new Sprite(
 
     // Player Jump
     stackSnap(player, enemy);
-    if (keys.w.pressed && (isAtGround(player) || player.velocity.y === 0 || isStacked(player, enemy))) {
+    if (keys.w.pressed && (isAtGround(player) || isStacked(player, enemy))) {
       keys.w.pressed = false;
       console.log('jump', player.velocity.y)
       player.jump();
@@ -219,21 +222,27 @@ const Background = new Sprite(
     }
     stackSnap(enemy, player);
     // Enemy Jump
-    if (keys.ArrowUp.pressed && (isAtGround(enemy) || player.velocity.y === 0 || isStacked(player, enemy))) {
+    if (keys.ArrowUp.pressed && (isAtGround(enemy) || isStacked(enemy, player))) {
       keys.ArrowUp.pressed = false;
       enemy.jump();
       // enemy.velocity.y = -jumpHeight;
     }
 
     // Player Duck
-    if (keys.s.pressed && player.isDucked == false && (player.position.y + player.height == ground)) {
+    if (keys.s.pressed 
+      && player.isDucked == false
+      && !isStacked(enemy, player)
+      && (player.position.y + player.height == ground || isStacked(player, enemy))) {
       player.duck();
     } else if (!keys.s.pressed && player.isDucked == true) {
       player.duck();
       player.isDucked = false;
     }
     // Enemy Duck
-    if (keys.ArrowDown.pressed && enemy.isDucked == false && (enemy.position.y + enemy.height == ground)) {
+    if (keys.ArrowDown.pressed 
+      && enemy.isDucked == false
+      && !isStacked(player, enemy)
+      && (enemy.position.y + enemy.height == ground || isStacked(enemy, player))) {
       enemy.duck();
     } else if (!keys.ArrowDown.pressed && enemy.isDucked == true) {
       enemy.duck();
