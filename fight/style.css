@@ -660,6 +660,14 @@ video {
   width: max-content;
 }
 
+.w-24 {
+  width: 6rem;
+}
+
+.shrink {
+  flex-shrink: 1;
+}
+
 .grow {
   flex-grow: 1;
 }
@@ -678,6 +686,10 @@ video {
 
 .justify-around {
   justify-content: space-around;
+}
+
+.gap-12 {
+  gap: 3rem;
 }
 
 .rounded-sm {
@@ -708,11 +720,6 @@ video {
 
 .border-4 {
   border-width: 4px;
-}
-
-.border-x-2 {
-  border-left-width: 2px;
-  border-right-width: 2px;
 }
 
 .border-y-2 {
@@ -780,6 +787,10 @@ video {
 .px-1 {
   padding-left: 0.25rem;
   padding-right: 0.25rem;
+}
+
+.pb-12 {
+  padding-bottom: 3rem;
 }
 
 .text-2xl {

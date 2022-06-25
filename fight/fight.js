@@ -16,10 +16,10 @@ const matchResults = document.querySelector("#match-results");
 playerRedBar.style.opacity = "0";
 enemyRedBar.style.opacity = "0";
 
-canvas.width = 1024;
-canvas.height = 576;
+canvas.width = 1000;
+canvas.height = 500;
 
-const ground = 500;
+const ground = 450;
 const gravity = 0.5;
 const walkSpeed = 5;
 const jumpHeight = 15;

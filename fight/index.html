@@ -11,8 +11,16 @@
   <link rel="stylesheet" href="style.css">
   <title>fight</title>
 </head>
-<body class="bg-amber-100">
-  <div class="relative w-min mx-auto">
+<body class="bg-amber-100 flex flex-col items-center">
+  <div class="flex gap-12 mt-8">
+    <img width="475px" height="475px" class="border-2 border-yellow-800 rounded-l" src="./assets/panels/grocery_01.png" alt="">
+    <img width="475px" height="475px" class="border-2 border-yellow-800 rounded-l" src="./assets/panels/grocery_02b.png" alt="">
+  </div>
+  <div class="flex gap-12 mt-8">
+    <img width="475px" height="475px" class="border-2 border-yellow-800 rounded-l" src="./assets/panels/grocery_03b.png" alt="">
+    <img width="475px" height="475px" class="border-2 border-yellow-800 rounded-l" src="./assets/panels/grocery_04b.png" alt="">
+  </div>
+  <div class="relative w-min  mt-8">
     <div id="hud" class="w-full flex items-center absolute p-2 px-4 top-2 h-24">
 
       <div class="w-full bg-yellow-100 grow h-4/6 p-2 rounded-l border-y-2 border-l-2 border-yellow-700">
@@ -54,9 +62,9 @@
       </div>
     </div>
 
-    <canvas id="fight-canvas" class="border-2 border-yellow-800 rounded mt-4"></canvas>
+    <canvas id="fight-canvas" class="border-2 border-yellow-800 rounded"></canvas>
     <div class="mt-4">
-      <div class="w-full flex justify-around mt-8">
+      <div class="w-full flex justify-around mt-8 pb-12">
 
         <div class="flex flex-col items-center">
           <svg width="258" height="80" viewBox="0 0 258 80" fill="none" xmlns="http://www.w3.org/2000/svg">
