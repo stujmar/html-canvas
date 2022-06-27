@@ -1,8 +1,20 @@
 import { Keys } from "./models/Keys.js";
 import { Fighter } from "./models/Fighter.js";
 import { Sprite } from "./models/Sprite.js";
-
+import {
+  calculateResults,
+  canFall,
+  canSnapToOpponent,
+  isAtGround,
+  isAtRightEdge,
+  isAtLeftEdge,
+  isClearVirtically,
+  isStacked,
+  keyIsHeld,
+  punchBoxesShareElevation,
+  stackSnap, bouncingJump } from "./utils.js";
 console.log("fight.js loaded");
+console.log("from fight", canFall)
 
 const canvas = document.querySelector("#fight-canvas");
 const c = canvas.getContext("2d");
@@ -88,71 +100,6 @@ const Background = new Sprite(
     timer.innerHTML = time;
     // timer.style.display = "none"
   }
-  const bouncingJump = (event) => (["w", "ArrowUp"].includes(event.key) && event.repeat);
-  const keyIsHeld = (event) => event.repeat;
-  const isAtLeftEdge = (sprite) => sprite.position.x <= 0;
-  const isAtRightEdge = (sprite) => sprite.position.x + sprite.width >= canvas.width;
-  const isAtGround = (sprite) => sprite.position.y + sprite.height === ground;
-  const canSnapToOpponent = (walker, blocker, direction) => {
-    if (direction === "right") {
-      return (walker.position.x + walker.width + walkSpeed >= blocker.position.x && walker.position.x + walker.width < blocker.position.x + walkSpeed*2);
-    } else if (direction === "left") {
-      return (walker.position.x - walkSpeed <= blocker.position.x + blocker.width && walker.position.x >= blocker.position.x + blocker.width - walkSpeed*2);
-    }
-  }
-
-  // Are the characters stacked?
-  const isStacked = (top, bottom) => {
-    let verticalAlignment = Math.abs((top.position.y + top.height) - bottom.position.y) < 1;
-    let leftEdge = top.position.x > bottom.position.x && top.position.x < bottom.position.x + bottom.width;
-    let rightEdge = top.position.x + top.width > bottom.position.x && top.position.x + top.width < bottom.position.x + bottom.width;
-    let xAlignment = top.width === bottom.width && top.position.x === bottom.position.x;
-    return verticalAlignment && (leftEdge || rightEdge || xAlignment);
-  }
-
-  // if a faller is going to land on a blocker snap the faller to the blocker
-  const stackSnap = (faller, blocker) => {
-    let snapTolerance = 10;
-    let leftEdge = faller.position.x > blocker.position.x && faller.position.x < blocker.position.x + blocker.width;
-    let rightEdge = faller.position.x + faller.width > blocker.position.x && faller.position.x + faller.width < blocker.position.x + blocker.width;
-    if (Math.abs(faller.position.y + faller.height - blocker.position.y) < snapTolerance && (leftEdge || rightEdge)) {
-      console.log("snapped");
-      faller.position.y = blocker.position.y - faller.height;
-      faller.velocity.y = 0;
-    }
-  }
-
-  const isClearVirtically = (spriteOne, spriteTwo) => {
-    return spriteOne.position.y + spriteOne.height <= spriteTwo.position.y ||
-    spriteOne.position.y >= spriteTwo.position.y + spriteTwo.height;
-  }
-
-  // This works but really shouldn't? should be using sprite's height aginst hitBox height/elevation?
-  const punchBoxesShareElevation = (hit, hitter) => {
-    return ((hit.punchBox.position.y > hitter.punchBox.position.y && // Top edge of box falls within second box
-           hit.punchBox.position.y < hitter.punchBox.position.y + hitter.punchBox.height) ||
-           (hit.punchBox.position.y + hit.punchBox.height >= hitter.punchBox.position.y && // Bottom edge of box falls within second box
-            hit.punchBox.position.y + hit.punchBox.height <= hitter.punchBox.position.y + hitter.punchBox.height));
-  }
-  const canFall = (faller, blocker) => {
-    return isClearVirtically(faller, blocker) || (faller.position.x + faller.width <= blocker.position.x ||
-    faller.position.x >= blocker.position.x + blocker.width);
-  }
-
-  const calculateResults = () => {
-    if (player.health === enemy.health) {
-      resultsBanner.style.display = "flex";
-      matchResults.innerHTML = "Tie Game!";
-    } else if (player.health > enemy.health) {
-      resultsBanner.style.display = "flex";
-      matchResults.innerHTML = "Blue Wins!";
-    } else {
-      resultsBanner.style.display = "flex";
-      matchResults.innerHTML = "Red Wins!";
-    }
-
-    timer.innerHTML = "XX"
-  }
 
   // Time
   function decreaseTimer() {
@@ -162,7 +109,7 @@ const Background = new Sprite(
     timer.innerHTML = time;
     if (time === 0) {
       gameOver = true;
-      gameOver && calculateResults();
+      gameOver && calculateResults(player, enemy, resultsBanner, matchResults);
     }
     }
   }
@@ -171,7 +118,7 @@ const Background = new Sprite(
   function animate() {
 
     if (player.health === 0 || enemy.health === 0) {
-      calculateResults();
+      calculateResults(player, enemy, resultsBanner, matchResults);
     }
 
     if ( preGame ) {
@@ -190,10 +137,10 @@ const Background = new Sprite(
       // Player Movement
       if (keys.a.pressed && player.lastKey === "a" && !isAtLeftEdge(player)) {
         player.facing = "left";
-        canSnapToOpponent(player, enemy, "left") && !isClearVirtically(player, enemy) ? player.position.x = enemy.position.x + enemy.width : player.velocity.x -= walkSpeed;
-      } else if (keys.d.pressed && player.lastKey === "d" && !isAtRightEdge(player)) {
+        canSnapToOpponent(player, enemy, "left", walkSpeed) && !isClearVirtically(player, enemy) ? player.position.x = enemy.position.x + enemy.width : player.velocity.x -= walkSpeed;
+      } else if (keys.d.pressed && player.lastKey === "d" && !isAtRightEdge(player, canvas)) {
         player.facing = "right";
-        canSnapToOpponent(player, enemy, "right") && !isClearVirtically(player, enemy) ? player.position.x = enemy.position.x - player.width : player.velocity.x = walkSpeed;
+        canSnapToOpponent(player, enemy, "right", walkSpeed) && !isClearVirtically(player, enemy) ? player.position.x = enemy.position.x - player.width : player.velocity.x = walkSpeed;
       }
       if (!keys.a.pressed && !keys.d.pressed) {
         player.velocity.x = 0;
@@ -201,8 +148,8 @@ const Background = new Sprite(
       // Enemy Movement
       if (keys.ArrowLeft.pressed && enemy.lastKey === "ArrowLeft" && !isAtLeftEdge(enemy)) {
         enemy.facing = "left";
-        canSnapToOpponent(enemy, player, "left") && !isClearVirtically(player, enemy) ? enemy.position.x = player.position.x + player.width : enemy.velocity.x -= walkSpeed;
-      } else if (keys.ArrowRight.pressed && enemy.lastKey === "ArrowRight" && !isAtRightEdge(enemy)) {
+        canSnapToOpponent(enemy, player, "left", walkSpeed) && !isClearVirtically(player, enemy) ? enemy.position.x = player.position.x + player.width : enemy.velocity.x -= walkSpeed;
+      } else if (keys.ArrowRight.pressed && enemy.lastKey === "ArrowRight" && !isAtRightEdge(enemy, canvas)) {
         enemy.facing = "right";
         canSnapToOpponent(enemy, player, "right") && !isClearVirtically(player, enemy) ? enemy.position.x = player.position.x - enemy.width : enemy.velocity.x = walkSpeed;
       }
@@ -213,7 +160,10 @@ const Background = new Sprite(
 
     // Player Jump
     stackSnap(player, enemy);
-    if (keys.w.pressed && (isAtGround(player) || isStacked(player, enemy))) {
+    if (keys.w.pressed // If you press jump ...
+      && (isAtGround(player, ground) // and you are on the ground ...
+      && !isStacked(enemy, player) // and no one is on you ...
+      || isStacked(player, enemy))) { // or you are stacked on someone ...
       keys.w.pressed = false;
       console.log('jump', player.velocity.y)
       player.jump();
@@ -222,7 +172,10 @@ const Background = new Sprite(
     }
     stackSnap(enemy, player);
     // Enemy Jump
-    if (keys.ArrowUp.pressed && (isAtGround(enemy) || isStacked(enemy, player))) {
+    if (keys.ArrowUp.pressed // If you press jump ...
+      && (isAtGround(enemy, ground) // and you are on the ground ...
+      && !isStacked(player,enemy) // and no one is on you ...
+      || isStacked(enemy, player))) { // or you are stacked on someone ...
       keys.ArrowUp.pressed = false;
       enemy.jump();
       // enemy.velocity.y = -jumpHeight;
