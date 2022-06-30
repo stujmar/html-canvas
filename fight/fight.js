@@ -14,7 +14,6 @@ import {
   punchBoxesShareElevation,
   stackSnap, bouncingJump } from "./utils.js";
 console.log("fight.js loaded");
-console.log("from fight", canFall)
 
 const canvas = document.querySelector("#fight-canvas");
 const c = canvas.getContext("2d");
@@ -40,15 +39,25 @@ let preGame = true;
 let gameOver = false;
 let time = 60;
 timer.innerHTML = time;
-let backgroundImg = "./assets/background.png";
+let backgroundSrc = "./assets/background.png";
+let shopSrc = "./assets/shop_anim.png";
 
 const Background = new Sprite(
   {
     context: c,
-    position: {x: 0, y: 0},
     dimensions: {width: canvas.width, height: canvas.height},
-    imgSource: backgroundImg,
+    position: {x: 0, y: 0},
+    imgSource: backgroundSrc,
   },
+  )
+  
+  const Shop = new Sprite(
+    {
+    context: c,
+    dimensions: {width: 1000, height: 1000},
+    position: {x: 100, y: 300},
+    imgSource: shopSrc,
+  }
 )
 
   const player = new Fighter({ 
@@ -124,8 +133,9 @@ const Background = new Sprite(
     if ( preGame ) {
       document.getElementById("pre-game").style.display = "flex";
     }
-
-    Background.draw(c);
+    // console.log("drawing")
+    // Background.draw(c);
+    Shop.draw(c);
 
     player.update(canFall(player, enemy), isStacked(player, enemy)); // Update the player.
     enemy.update(canFall(enemy, player), isStacked(enemy, player)); // Update the enemy.

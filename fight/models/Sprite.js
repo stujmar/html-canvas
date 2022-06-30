@@ -10,7 +10,8 @@ export class Sprite {
   draw(context) {
     const spriteImg = new Image()
     spriteImg.onload = function() {
-      context.drawImage(spriteImg, 0, 0);
+      console.log(this.position)
+      context.drawImage(spriteImg, this.position.x, this.position.y);
     }
     spriteImg.src = this.imageSource;
   }
