@@ -133,8 +133,9 @@ const Background = new Sprite(
     if ( preGame ) {
       document.getElementById("pre-game").style.display = "flex";
     }
+
     // console.log("drawing")
-    // Background.draw(c);
+    Background.draw(c);
     Shop.draw(c);
 
     player.update(canFall(player, enemy), isStacked(player, enemy)); // Update the player.
