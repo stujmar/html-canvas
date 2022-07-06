@@ -54,8 +54,8 @@ const Background = new Sprite(
   const Shop = new Sprite(
     {
     context: c,
-    dimensions: {width: 1000, height: 1000},
-    position: {x: 100, y: 300},
+    dimensions: {width: 500, height: 100},
+    position: {x: 100, y: 375},
     imgSource: shopSrc,
   }
 )
@@ -125,7 +125,9 @@ const Background = new Sprite(
 
   // Event Loop
   function animate() {
-
+    Background.draw(c);
+   
+    
     if (player.health === 0 || enemy.health === 0) {
       calculateResults(player, enemy, resultsBanner, matchResults);
     }
@@ -135,15 +137,12 @@ const Background = new Sprite(
     }
 
     // console.log("drawing")
-    Background.draw(c);
-    Shop.draw(c);
-
     player.update(canFall(player, enemy), isStacked(player, enemy)); // Update the player.
     enemy.update(canFall(enemy, player), isStacked(enemy, player)); // Update the enemy.
     // Reset the player's velocity.
     player.velocity.x = 0; 
     enemy.velocity.x = 0;
-
+    
     if (!preGame) {
       // Player Movement
       if (keys.a.pressed && player.lastKey === "a" && !isAtLeftEdge(player)) {
@@ -168,77 +167,73 @@ const Background = new Sprite(
         player.velocity.x = 0;
       }
     }
-
+    
     // Player Jump
     stackSnap(player, enemy);
     if (keys.w.pressed // If you press jump ...
       && (isAtGround(player, ground) // and you are on the ground ...
       && !isStacked(enemy, player) // and no one is on you ...
       || isStacked(player, enemy))) { // or you are stacked on someone ...
-      keys.w.pressed = false;
-      console.log('jump', player.velocity.y)
-      player.jump();
-      // player.velocity.y = -jumpHeight;
-      console.log('jump', player.velocity.y)
-    }
-    stackSnap(enemy, player);
-    // Enemy Jump
-    if (keys.ArrowUp.pressed // If you press jump ...
+        keys.w.pressed = false;
+        player.jump();
+      }
+      stackSnap(enemy, player);
+      // Enemy Jump
+      if (keys.ArrowUp.pressed // If you press jump ...
       && (isAtGround(enemy, ground) // and you are on the ground ...
       && !isStacked(player,enemy) // and no one is on you ...
       || isStacked(enemy, player))) { // or you are stacked on someone ...
-      keys.ArrowUp.pressed = false;
-      enemy.jump();
-      // enemy.velocity.y = -jumpHeight;
-    }
-
-    // Player Duck
-    if (keys.s.pressed 
-      && player.isDucked == false
-      && !isStacked(enemy, player)
-      && (player.position.y + player.height == ground || isStacked(player, enemy))) {
-      player.duck();
-    } else if (!keys.s.pressed && player.isDucked == true) {
-      player.duck();
-      player.isDucked = false;
-    }
-    // Enemy Duck
-    if (keys.ArrowDown.pressed 
-      && enemy.isDucked == false
-      && !isStacked(player, enemy)
-      && (enemy.position.y + enemy.height == ground || isStacked(enemy, player))) {
-      enemy.duck();
-    } else if (!keys.ArrowDown.pressed && enemy.isDucked == true) {
-      enemy.duck();
-      enemy.isDucked = false;
-    }
-
-    // These collision logics could be cleaned up like is left of left edge, is right of right edge etc
-    // Maybe one function that takes in two sprites or attachBoxes and returns a boolean?
-    // Player Hit Collision
-    let playerOnEnemyRight = player.punchBox.position.x + player.punchBox.width >= enemy.position.x;
-    let playerPastEnemyRight = player.position.x >= enemy.position.x + enemy.width;
-    let playerOnEnemyLeft = player.punchBox.position.x - (player.punchBox.width/2) <= enemy.position.x + enemy.width;
-    let playerPastEnemyLeft = player.position.x + player.width <= enemy.position.x;
-    if (playerOnEnemyRight && !playerPastEnemyRight && player.facing === "right" && punchBoxesShareElevation(enemy, player) && player.isPunching) {
-      player.isPunching = false;
-      console.log("enemy was hit right");
-      enemy.hit("right");  
-      enemyHealthBar.style.width = `${enemy.health}%`;
-      enemyRedBar.style.opacity = 0 + (100 - enemy.health)/100;
-    } else if (playerOnEnemyLeft && !playerPastEnemyLeft && player.facing === "left" && punchBoxesShareElevation(enemy, player) && player.isPunching) {
-      player.isPunching = false;
-      console.log("enemy was hit left");
-      enemy.hit("left");
-      enemyHealthBar.style.width = `${enemy.health}%`;
-      enemyRedBar.style.opacity = 0 + (100 - enemy.health)/100;
-    }
-    // Enemy Hit Collision
-    let enemyOnPlayerRight = enemy.punchBox.position.x + enemy.punchBox.width >= player.position.x;
-    let enemyPastPlayerRight = enemy.position.x >= player.position.x + player.width;
-    let enemyOnPlayerLeft = enemy.punchBox.position.x - (enemy.punchBox.width/2) <= player.position.x + player.width;
-    let enemyPastPlayerLeft = enemy.position.x + enemy.width <= player.position.x;
-    if (enemyOnPlayerRight && !enemyPastPlayerRight && enemy.facing === "right"  && punchBoxesShareElevation(player, enemy) && enemy.isPunching) {
+        keys.ArrowUp.pressed = false;
+        enemy.jump();
+      }
+      
+      // Player Duck
+      if (keys.s.pressed 
+        && player.isDucked == false
+        && !isStacked(enemy, player)
+        && (player.position.y + player.height == ground || isStacked(player, enemy))) {
+          player.duck();
+        } else if (!keys.s.pressed && player.isDucked == true) {
+          player.duck();
+          player.isDucked = false;
+        }
+        // Enemy Duck
+        if (keys.ArrowDown.pressed 
+          && enemy.isDucked == false
+          && !isStacked(player, enemy)
+          && (enemy.position.y + enemy.height == ground || isStacked(enemy, player))) {
+            enemy.duck();
+          } else if (!keys.ArrowDown.pressed && enemy.isDucked == true) {
+            enemy.duck();
+            enemy.isDucked = false;
+          }
+          
+          // These collision logics could be cleaned up like is left of left edge, is right of right edge etc
+          // Maybe one function that takes in two sprites or attachBoxes and returns a boolean?
+          // Player Hit Collision
+          let playerOnEnemyRight = player.punchBox.position.x + player.punchBox.width >= enemy.position.x;
+          let playerPastEnemyRight = player.position.x >= enemy.position.x + enemy.width;
+          let playerOnEnemyLeft = player.punchBox.position.x - (player.punchBox.width/2) <= enemy.position.x + enemy.width;
+          let playerPastEnemyLeft = player.position.x + player.width <= enemy.position.x;
+          if (playerOnEnemyRight && !playerPastEnemyRight && player.facing === "right" && punchBoxesShareElevation(enemy, player) && player.isPunching) {
+            player.isPunching = false;
+            console.log("enemy was hit right");
+            enemy.hit("right");  
+            enemyHealthBar.style.width = `${enemy.health}%`;
+            enemyRedBar.style.opacity = 0 + (100 - enemy.health)/100;
+          } else if (playerOnEnemyLeft && !playerPastEnemyLeft && player.facing === "left" && punchBoxesShareElevation(enemy, player) && player.isPunching) {
+            player.isPunching = false;
+            console.log("enemy was hit left");
+            enemy.hit("left");
+            enemyHealthBar.style.width = `${enemy.health}%`;
+            enemyRedBar.style.opacity = 0 + (100 - enemy.health)/100;
+          }
+          // Enemy Hit Collision
+          let enemyOnPlayerRight = enemy.punchBox.position.x + enemy.punchBox.width >= player.position.x;
+          let enemyPastPlayerRight = enemy.position.x >= player.position.x + player.width;
+          let enemyOnPlayerLeft = enemy.punchBox.position.x - (enemy.punchBox.width/2) <= player.position.x + player.width;
+          let enemyPastPlayerLeft = enemy.position.x + enemy.width <= player.position.x;
+          if (enemyOnPlayerRight && !enemyPastPlayerRight && enemy.facing === "right"  && punchBoxesShareElevation(player, enemy) && enemy.isPunching) {
       enemy.isPunching = false;
       player.hit("right");
       playerHealthBar.style.width = `${player.health}%`;
@@ -251,10 +246,11 @@ const Background = new Sprite(
       playerRedBar.style.opacity = 0 + (100 - player.health)/100;
       console.log("player was hit left");
     }
-
+    Shop.draw(c);
     window.requestAnimationFrame(animate);
+    
   }
-
+  
   animate();
 
 
