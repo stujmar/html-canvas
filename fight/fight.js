@@ -136,9 +136,10 @@ const Background = new Sprite(
       document.getElementById("pre-game").style.display = "flex";
     }
 
-    // console.log("drawing")
     player.update(canFall(player, enemy), isStacked(player, enemy)); // Update the player.
     enemy.update(canFall(enemy, player), isStacked(enemy, player)); // Update the enemy.
+
+
     // Reset the player's velocity.
     player.velocity.x = 0; 
     enemy.velocity.x = 0;
@@ -246,7 +247,7 @@ const Background = new Sprite(
       playerRedBar.style.opacity = 0 + (100 - player.health)/100;
       console.log("player was hit left");
     }
-    Shop.draw(c);
+    Shop.update(c);
     window.requestAnimationFrame(animate);
     
   }

@@ -8,20 +8,20 @@ export class Sprite {
     this.context = context;
   }
 
-  draw(context) {
+  draw(context, fighters=false) {
     const spriteImg = new Image()
     let _position = this.position;
     let _dimensions = this.dimensions;
     spriteImg.onload = function() {
-
       context.drawImage(spriteImg, _position.x, _position.y, _dimensions.width, _dimensions.height);
     }
+    // console.log('drawing sprite');
     spriteImg.src = this.imageSource;
   }
 
 
-  update(context) {
-    this.draw(context)
+  update(context, fighters) {
+    this.draw(context, fighters)
   }
 
 }

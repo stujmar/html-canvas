@@ -57,6 +57,7 @@ export class Fighter {
   }}
 
   draw() {
+    // console.log('drawing fighter');
     let attackDirection = this.facing === "right" ? this.punchBox.position.x : this.punchBox.position.x - this.width;
     if (this.isPunching) {
       this.c.fillStyle = "yellowgreen";
