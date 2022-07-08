@@ -123,6 +123,16 @@ const Background = new Sprite(
     }
   }
 
+  /**
+   * @description - This function is called every time the game is updated.
+   * It updates the position of the player and enemy, and draws the scenery.
+   */
+  const appRunner = ({spriteArray, contextRouter}) => {
+    spriteArray.forEach(sprite => {
+      sprite.update(contextRouter(sprite.contextId));
+    })
+  }
+
   // Event Loop
   function animate() {
     Background.draw(c);
