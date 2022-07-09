@@ -128,9 +128,16 @@ const Background = new Sprite(
    * It updates the position of the player and enemy, and draws the scenery.
    */
   const appRunner = ({spriteArray, contextRouter}) => {
-    spriteArray.forEach(sprite => {
-      sprite.update(contextRouter(sprite.contextId));
+    let element = "get element from DOM?";
+    element.onload(() => {
+      spriteArray.forEach(sprite => {
+        sprite.update(contextRouter(sprite.contextId));
+      })
     })
+    spriteArray.forEach(sprite => {
+      if (sprite instanceof Sprite) {
+        sprite.img = sprite.imgSrc
+      }
   }
 
   // Event Loop
