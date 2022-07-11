@@ -134,10 +134,11 @@ const Background = new Sprite(
         sprite.update(contextRouter(sprite.contextId));
       })
     })
-    spriteArray.forEach(sprite => {
-      if (sprite instanceof Sprite) {
-        sprite.img = sprite.imgSrc
-      }
+      spriteArray.forEach(sprite => {
+        if (sprite instanceof Sprite) {
+          sprite.img = sprite.imgSrc
+        }
+    })
   }
 
   // Event Loop
