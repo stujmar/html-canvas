@@ -13,6 +13,7 @@ import {
   keyIsHeld,
   punchBoxesShareElevation,
   stackSnap, bouncingJump } from "./utils.js";
+
 console.log("fight.js loaded");
 
 const canvas = document.querySelector("#fight-canvas");
@@ -41,6 +42,30 @@ let time = 60;
 timer.innerHTML = time;
 let backgroundSrc = "./assets/background.png";
 let shopSrc = "./assets/shop_anim.png";
+
+// Trying out an image loader model.
+let imgURLs = ['background', 'shop_anim'];
+let imgs = [];
+let imgCount = 0;
+function pre_load(){
+
+    for(var i=0;i<imgURLs.length;i++){
+
+        var img=new Image();
+        imgs.push(img);
+        img.onload=function(){
+            if(++imgCount>=imgs.length){ 
+
+                // imgs[] now contains all your images in imgURLs[] order
+
+                render(); 
+
+            }
+        }
+        img.src= "img/sprites/"+imgURLs[i]+".png";
+    }
+
+}
 
 const Background = new Sprite(
   {
